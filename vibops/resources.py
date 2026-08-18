@@ -2,22 +2,26 @@
 
 from __future__ import annotations
 
-from typing import Any
+import asyncio
+from typing import Any, AsyncIterator
 
 import httpx
 
 from vibops.exceptions import (
     AuthenticationError,
+    ConnectionError,
     ForbiddenError,
     NotFoundError,
     RateLimitError,
     ServerError,
+    TimeoutError,
     ValidationError,
     VibOpsError,
 )
 
 _RETRY_STATUSES = {502, 503}
-_MAX_RETRIES = 1
+_DEFAULT_MAX_RETRIES = 2
+_BACKOFF_BASE = 0.5  # seconds
 
 
 def _raise_for_status(response: httpx.Response) -> None:
@@ -51,8 +55,9 @@ def _raise_for_status(response: httpx.Response) -> None:
 class Resource:
     """Base class for all API resources."""
 
-    def __init__(self, http: httpx.AsyncClient) -> None:
+    def __init__(self, http: httpx.AsyncClient, *, max_retries: int = _DEFAULT_MAX_RETRIES) -> None:
         self._http = http
+        self._max_retries = max_retries
 
     async def _request(
         self,
@@ -66,14 +71,27 @@ class Resource:
         url = f"/api/v1/{path}"
         last_response: httpx.Response | None = None
 
-        for attempt in range(_MAX_RETRIES + 1):
-            response = await self._http.request(method, url, params=params, json=json)
-            if response.status_code not in _RETRY_STATUSES or attempt == _MAX_RETRIES:
+        for attempt in range(self._max_retries + 1):
+            try:
+                response = await self._http.request(method, url, params=params, json=json)
+            except httpx.ConnectError:
+                base_url = str(self._http.base_url)
+                raise ConnectionError(
+                    f"Cannot connect to VibOps at {base_url}",
+                ) from None
+            except (httpx.TimeoutException, httpx.ReadTimeout):
+                raise TimeoutError("Request timed out") from None
+
+            if response.status_code not in _RETRY_STATUSES or attempt == self._max_retries:
                 last_response = response
                 break
+
+            # Exponential backoff: 0.5s, 1.0s, 2.0s, ...
+            await asyncio.sleep(_BACKOFF_BASE * (2 ** attempt))
             last_response = response
 
-        assert last_response is not None
+        if last_response is None:
+            raise ServerError("No response received after retries", status_code=502)
         _raise_for_status(last_response)
 
         if last_response.status_code == 204:
@@ -93,3 +111,17 @@ class Resource:
 
     async def _patch(self, path: str, *, json: Any | None = None) -> Any:
         return await self._request("PATCH", path, json=json)
+
+    async def _paginate(self, path: str, limit: int = 100, **params: Any) -> AsyncIterator[dict[str, Any]]:
+        """Auto-paginating async generator."""
+        offset = 0
+        while True:
+            data = await self._get(path, limit=limit, offset=offset, **params)
+            items = data if isinstance(data, list) else data.get("items", [])
+            if not items:
+                break
+            for item in items:
+                yield item
+            if len(items) < limit:
+                break
+            offset += limit

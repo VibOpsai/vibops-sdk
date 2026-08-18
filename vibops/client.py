@@ -29,7 +29,7 @@ class AsyncVibOps:
             clusters = await v.clusters.list()
     """
 
-    def __init__(self, url: str, token: str, *, timeout: float = 30.0) -> None:
+    def __init__(self, url: str, token: str, *, timeout: float = 30.0, max_retries: int = 2) -> None:
         if not url:
             raise VibOpsError("url is required")
         if not token:
@@ -41,15 +41,15 @@ class AsyncVibOps:
             timeout=timeout,
         )
 
-        self.clusters = ClustersResource(self._http)
-        self.jobs = JobsResource(self._http)
-        self.gateways = GatewaysResource(self._http)
-        self.models = ModelsResource(self._http)
-        self.finops = FinOpsResource(self._http)
-        self.agents = AgentsResource(self._http)
-        self.security = SecurityResource(self._http)
-        self.compliance = ComplianceResource(self._http)
-        self.insights = InsightsResource(self._http)
+        self.clusters = ClustersResource(self._http, max_retries=max_retries)
+        self.jobs = JobsResource(self._http, max_retries=max_retries)
+        self.gateways = GatewaysResource(self._http, max_retries=max_retries)
+        self.models = ModelsResource(self._http, max_retries=max_retries)
+        self.finops = FinOpsResource(self._http, max_retries=max_retries)
+        self.agents = AgentsResource(self._http, max_retries=max_retries)
+        self.security = SecurityResource(self._http, max_retries=max_retries)
+        self.compliance = ComplianceResource(self._http, max_retries=max_retries)
+        self.insights = InsightsResource(self._http, max_retries=max_retries)
 
     async def __aenter__(self) -> AsyncVibOps:
         return self
@@ -90,8 +90,8 @@ class VibOps:
             clusters = v.clusters.list()
     """
 
-    def __init__(self, url: str, token: str, *, timeout: float = 30.0) -> None:
-        self._async = AsyncVibOps(url, token, timeout=timeout)
+    def __init__(self, url: str, token: str, *, timeout: float = 30.0, max_retries: int = 2) -> None:
+        self._async = AsyncVibOps(url, token, timeout=timeout, max_retries=max_retries)
         self._loop: asyncio.AbstractEventLoop | None = None
 
         run = self._run_sync

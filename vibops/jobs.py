@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Any
+from typing import Any, AsyncIterator
 
 from vibops.resources import Resource
 
@@ -54,3 +54,30 @@ class JobsResource(Resource):
     async def cancel(self, job_id: str) -> dict[str, Any]:
         """Cancel a running job."""
         return await self._post(f"jobs/{job_id}/cancel")
+
+    async def stream_logs(self, job_id: str) -> AsyncIterator[str]:
+        """Stream job logs via SSE. Yields log lines."""
+        async with self._http.stream("GET", f"/api/v1/jobs/{job_id}/logs/stream") as response:
+            async for line in response.aiter_lines():
+                if line.startswith("data:"):
+                    yield line[5:].strip()
+
+    async def list_all(
+        self,
+        *,
+        limit: int = 100,
+        status: str | None = None,
+        action: str | None = None,
+        triggered_by: str | None = None,
+        gateway_id: str | None = None,
+    ) -> AsyncIterator[dict[str, Any]]:
+        """Auto-paginating iterator over all jobs."""
+        async for item in self._paginate(
+            "jobs",
+            limit=limit,
+            status=status,
+            action=action,
+            triggered_by=triggered_by,
+            gateway_id=gateway_id,
+        ):
+            yield item

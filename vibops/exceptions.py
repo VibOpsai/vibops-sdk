@@ -34,3 +34,11 @@ class RateLimitError(VibOpsError):
 
 class ServerError(VibOpsError):
     """Raised on 5xx after retries are exhausted."""
+
+
+class ConnectionError(VibOpsError):
+    """Raised when the SDK cannot connect to the VibOps server."""
+
+
+class TimeoutError(VibOpsError):
+    """Raised when a request to the VibOps server times out."""
