@@ -9,15 +9,33 @@ from typing import Any
 import httpx
 
 from vibops.agents import AgentsResource
+from vibops.alerts import AlertsResource
+from vibops.anomalies import AnomaliesResource
+from vibops.audit import AuditResource
+from vibops.auth import AuthResource
 from vibops.clusters import ClustersResource
 from vibops.compliance import ComplianceResource
+from vibops.eval import EvalResource
 from vibops.exceptions import VibOpsError
 from vibops.finops import FinOpsResource
 from vibops.gateways import GatewaysResource
+from vibops.gpu_health import GpuHealthResource
+from vibops.identities import IdentitiesResource
 from vibops.insights import InsightsResource
 from vibops.jobs import JobsResource
+from vibops.metrics import MetricsResource
 from vibops.models import ModelsResource
+from vibops.notifications import NotificationsResource
+from vibops.orgs import OrgsResource
+from vibops.pipelines import PipelinesResource
+from vibops.policy import PolicyResource
+from vibops.reselling import ResellingResource
+from vibops.secrets import SecretsResource
 from vibops.security import SecurityResource
+from vibops.tokens import TokensResource
+from vibops.triggers import TriggersResource
+from vibops.webhooks import WebhooksResource
+from vibops.workloads import WorkloadsResource
 
 
 class AsyncVibOps:
@@ -64,6 +82,24 @@ class AsyncVibOps:
         self.security = SecurityResource(self._http, **resource_kwargs)
         self.compliance = ComplianceResource(self._http, **resource_kwargs)
         self.insights = InsightsResource(self._http, **resource_kwargs)
+        self.auth = AuthResource(self._http, **resource_kwargs)
+        self.audit = AuditResource(self._http, **resource_kwargs)
+        self.anomalies = AnomaliesResource(self._http, **resource_kwargs)
+        self.alerts = AlertsResource(self._http, **resource_kwargs)
+        self.secrets = SecretsResource(self._http, **resource_kwargs)
+        self.pipelines = PipelinesResource(self._http, **resource_kwargs)
+        self.tokens = TokensResource(self._http, **resource_kwargs)
+        self.notifications = NotificationsResource(self._http, **resource_kwargs)
+        self.policy = PolicyResource(self._http, **resource_kwargs)
+        self.identities = IdentitiesResource(self._http, **resource_kwargs)
+        self.orgs = OrgsResource(self._http, **resource_kwargs)
+        self.metrics = MetricsResource(self._http, **resource_kwargs)
+        self.triggers = TriggersResource(self._http, **resource_kwargs)
+        self.eval = EvalResource(self._http, **resource_kwargs)
+        self.workloads = WorkloadsResource(self._http, **resource_kwargs)
+        self.webhooks = WebhooksResource(self._http, **resource_kwargs)
+        self.gpu_health = GpuHealthResource(self._http, **resource_kwargs)
+        self.reselling = ResellingResource(self._http, **resource_kwargs)
 
     def __repr__(self) -> str:
         return f"AsyncVibOps(url='{self._http.base_url}', token='***')"
@@ -141,6 +177,24 @@ class VibOps:
         self.security = _SyncProxy(self._async.security, run)
         self.compliance = _SyncProxy(self._async.compliance, run)
         self.insights = _SyncProxy(self._async.insights, run)
+        self.auth = _SyncProxy(self._async.auth, run)
+        self.audit = _SyncProxy(self._async.audit, run)
+        self.anomalies = _SyncProxy(self._async.anomalies, run)
+        self.alerts = _SyncProxy(self._async.alerts, run)
+        self.secrets = _SyncProxy(self._async.secrets, run)
+        self.pipelines = _SyncProxy(self._async.pipelines, run)
+        self.tokens = _SyncProxy(self._async.tokens, run)
+        self.notifications = _SyncProxy(self._async.notifications, run)
+        self.policy = _SyncProxy(self._async.policy, run)
+        self.identities = _SyncProxy(self._async.identities, run)
+        self.orgs = _SyncProxy(self._async.orgs, run)
+        self.metrics = _SyncProxy(self._async.metrics, run)
+        self.triggers = _SyncProxy(self._async.triggers, run)
+        self.eval = _SyncProxy(self._async.eval, run)
+        self.workloads = _SyncProxy(self._async.workloads, run)
+        self.webhooks = _SyncProxy(self._async.webhooks, run)
+        self.gpu_health = _SyncProxy(self._async.gpu_health, run)
+        self.reselling = _SyncProxy(self._async.reselling, run)
 
     def __repr__(self) -> str:
         return f"VibOps(url='{self._async._http.base_url}', token='***')"
