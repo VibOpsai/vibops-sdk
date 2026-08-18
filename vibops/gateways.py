@@ -6,6 +6,8 @@ from typing import Any
 
 from vibops.resources import Resource
 
+__all__ = ["GatewaysResource"]
+
 
 class GatewaysResource(Resource):
     """Operations on VibOps Connect gateways."""
@@ -22,7 +24,7 @@ class GatewaysResource(Resource):
         description: str | None = None,
         gateway_type: str = "kubernetes",
         prometheus_url: str | None = None,
-        **kwargs: Any,
+        labels: dict[str, str] | None = None,
     ) -> dict[str, Any]:
         """Register a new gateway. Returns gateway info including the API key (shown once)."""
         body: dict[str, Any] = {"name": name, "gateway_type": gateway_type}
@@ -32,7 +34,8 @@ class GatewaysResource(Resource):
             body["description"] = description
         if prometheus_url is not None:
             body["prometheus_url"] = prometheus_url
-        body.update(kwargs)
+        if labels is not None:
+            body["labels"] = labels
         return await self._post("gateways", json=body)
 
     async def delete(self, gateway_id: str, *, confirmed: bool = True) -> dict[str, Any]:

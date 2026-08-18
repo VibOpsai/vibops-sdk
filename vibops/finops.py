@@ -5,14 +5,20 @@ from __future__ import annotations
 from typing import Any
 
 from vibops.resources import Resource
+from vibops.types import Budget, parse
+
+__all__ = ["FinOpsResource"]
 
 
 class FinOpsResource(Resource):
     """GPU cost management and FinOps analytics."""
 
-    async def budget(self) -> dict[str, Any] | None:
+    async def budget(self) -> Budget | dict[str, Any] | None:
         """Get the active budget and current month spend."""
-        return await self._get("finops/budget")
+        data = await self._get("finops/budget")
+        if data is None:
+            return None
+        return parse(Budget, data)
 
     async def spend_trend(self) -> list[dict[str, Any]]:
         """Get monthly spend trend (last 12 months)."""

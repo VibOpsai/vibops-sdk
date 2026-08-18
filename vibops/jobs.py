@@ -5,6 +5,9 @@ from __future__ import annotations
 from typing import Any, AsyncIterator
 
 from vibops.resources import Resource
+from vibops.types import Job, parse
+
+__all__ = ["JobsResource"]
 
 
 class JobsResource(Resource):
@@ -31,9 +34,10 @@ class JobsResource(Resource):
             gateway_id=gateway_id,
         )
 
-    async def get(self, job_id: str) -> dict[str, Any]:
+    async def get(self, job_id: str) -> Job | dict[str, Any]:
         """Get a single job by ID."""
-        return await self._get(f"jobs/{job_id}")
+        data = await self._get(f"jobs/{job_id}")
+        return parse(Job, data)
 
     async def create(
         self,
@@ -42,18 +46,20 @@ class JobsResource(Resource):
         payload: dict[str, Any] | None = None,
         triggered_by: str = "sdk",
         gateway_id: str | None = None,
-    ) -> dict[str, Any]:
+    ) -> Job | dict[str, Any]:
         """Create a new job."""
         body: dict[str, Any] = {"action": action, "triggered_by": triggered_by}
         if payload is not None:
             body["payload"] = payload
         if gateway_id is not None:
             body["gateway_id"] = gateway_id
-        return await self._post("jobs", json=body)
+        data = await self._post("jobs", json=body)
+        return parse(Job, data)
 
-    async def cancel(self, job_id: str) -> dict[str, Any]:
+    async def cancel(self, job_id: str) -> Job | dict[str, Any]:
         """Cancel a running job."""
-        return await self._post(f"jobs/{job_id}/cancel")
+        data = await self._post(f"jobs/{job_id}/cancel")
+        return parse(Job, data)
 
     async def stream_logs(self, job_id: str) -> AsyncIterator[str]:
         """Stream job logs via SSE. Yields log lines."""
