@@ -29,7 +29,16 @@ class AsyncVibOps:
             clusters = await v.clusters.list()
     """
 
-    def __init__(self, url: str, token: str, *, timeout: float = 30.0, max_retries: int = 2) -> None:
+    def __init__(
+        self,
+        url: str,
+        token: str,
+        *,
+        timeout: float = 30.0,
+        max_retries: int = 2,
+        retry_statuses: set[int] | None = None,
+        event_hooks: dict[str, list[Any]] | None = None,
+    ) -> None:
         if not url:
             raise VibOpsError("url is required")
         if not token:
@@ -39,17 +48,25 @@ class AsyncVibOps:
             base_url=url.rstrip("/"),
             headers={"Authorization": f"Bearer {token}"},
             timeout=timeout,
+            event_hooks=event_hooks or {},
         )
 
-        self.clusters = ClustersResource(self._http, max_retries=max_retries)
-        self.jobs = JobsResource(self._http, max_retries=max_retries)
-        self.gateways = GatewaysResource(self._http, max_retries=max_retries)
-        self.models = ModelsResource(self._http, max_retries=max_retries)
-        self.finops = FinOpsResource(self._http, max_retries=max_retries)
-        self.agents = AgentsResource(self._http, max_retries=max_retries)
-        self.security = SecurityResource(self._http, max_retries=max_retries)
-        self.compliance = ComplianceResource(self._http, max_retries=max_retries)
-        self.insights = InsightsResource(self._http, max_retries=max_retries)
+        resource_kwargs: dict[str, Any] = {"max_retries": max_retries}
+        if retry_statuses is not None:
+            resource_kwargs["retry_statuses"] = retry_statuses
+
+        self.clusters = ClustersResource(self._http, **resource_kwargs)
+        self.jobs = JobsResource(self._http, **resource_kwargs)
+        self.gateways = GatewaysResource(self._http, **resource_kwargs)
+        self.models = ModelsResource(self._http, **resource_kwargs)
+        self.finops = FinOpsResource(self._http, **resource_kwargs)
+        self.agents = AgentsResource(self._http, **resource_kwargs)
+        self.security = SecurityResource(self._http, **resource_kwargs)
+        self.compliance = ComplianceResource(self._http, **resource_kwargs)
+        self.insights = InsightsResource(self._http, **resource_kwargs)
+
+    def __repr__(self) -> str:
+        return f"AsyncVibOps(url='{self._http.base_url}', token='***')"
 
     async def __aenter__(self) -> AsyncVibOps:
         return self
@@ -84,14 +101,34 @@ class _SyncProxy:
 class VibOps:
     """Synchronous VibOps SDK client.
 
+    Each method call uses ``asyncio.run()`` internally. This creates a fresh
+    event loop per call which is simple and safe, but adds minor overhead.
+    For high-throughput use cases, prefer :class:`AsyncVibOps` directly.
+
     Usage::
 
         with VibOps(url="https://vibops.example.com", token="vib_...") as v:
             clusters = v.clusters.list()
     """
 
-    def __init__(self, url: str, token: str, *, timeout: float = 30.0, max_retries: int = 2) -> None:
-        self._async = AsyncVibOps(url, token, timeout=timeout, max_retries=max_retries)
+    def __init__(
+        self,
+        url: str,
+        token: str,
+        *,
+        timeout: float = 30.0,
+        max_retries: int = 2,
+        retry_statuses: set[int] | None = None,
+        event_hooks: dict[str, list[Any]] | None = None,
+    ) -> None:
+        self._async = AsyncVibOps(
+            url,
+            token,
+            timeout=timeout,
+            max_retries=max_retries,
+            retry_statuses=retry_statuses,
+            event_hooks=event_hooks,
+        )
         self._loop: asyncio.AbstractEventLoop | None = None
 
         run = self._run_sync
@@ -104,6 +141,9 @@ class VibOps:
         self.security = _SyncProxy(self._async.security, run)
         self.compliance = _SyncProxy(self._async.compliance, run)
         self.insights = _SyncProxy(self._async.insights, run)
+
+    def __repr__(self) -> str:
+        return f"VibOps(url='{self._async._http.base_url}', token='***')"
 
     def _run_sync(self, coro: Any) -> Any:
         """Run a coroutine synchronously, reusing a background event loop."""

@@ -6,6 +6,8 @@ from typing import Any
 
 from vibops.resources import Resource
 
+__all__ = ["AgentsResource"]
+
 
 class AgentsResource(Resource):
     """Agent inference usage and budget controls."""

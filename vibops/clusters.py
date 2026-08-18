@@ -5,14 +5,20 @@ from __future__ import annotations
 from typing import Any
 
 from vibops.resources import Resource
+from vibops.types import Cluster, parse
+
+__all__ = ["ClustersResource"]
 
 
 class ClustersResource(Resource):
     """Operations on GPU clusters."""
 
-    async def list(self) -> list[dict[str, Any]]:
+    async def list(self) -> list[Cluster | dict[str, Any]]:
         """List all clusters registered in VibOps."""
-        return await self._get("clusters")
+        data = await self._get("clusters")
+        if isinstance(data, list):
+            return [parse(Cluster, item) for item in data]
+        return data
 
     async def deployments(
         self,

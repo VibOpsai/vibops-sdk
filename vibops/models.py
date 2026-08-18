@@ -5,6 +5,9 @@ from __future__ import annotations
 from typing import Any
 
 from vibops.resources import Resource
+from vibops.types import Job, parse
+
+__all__ = ["ModelsResource"]
 
 
 class ModelsResource(Resource):
@@ -18,16 +21,23 @@ class ModelsResource(Resource):
         namespace: str = "inference",
         replicas: int = 1,
         gateway_id: str | None = None,
-        **kwargs: Any,
-    ) -> dict[str, Any]:
+        gpu_type: str | None = None,
+        image: str | None = None,
+        env: dict[str, str] | None = None,
+    ) -> Job | dict[str, Any]:
         """Deploy a model. Returns the created job."""
         payload: dict[str, Any] = {
             "model": model,
             "cluster": cluster,
             "namespace": namespace,
             "replicas": replicas,
-            **kwargs,
         }
+        if gpu_type is not None:
+            payload["gpu_type"] = gpu_type
+        if image is not None:
+            payload["image"] = image
+        if env is not None:
+            payload["env"] = env
         body: dict[str, Any] = {
             "action": "deploy_model",
             "payload": payload,
@@ -35,7 +45,8 @@ class ModelsResource(Resource):
         }
         if gateway_id is not None:
             body["gateway_id"] = gateway_id
-        return await self._post("jobs", json=body)
+        data = await self._post("jobs", json=body)
+        return parse(Job, data)
 
     async def scale(
         self,
@@ -45,7 +56,7 @@ class ModelsResource(Resource):
         cluster: str,
         *,
         gateway_id: str | None = None,
-    ) -> dict[str, Any]:
+    ) -> Job | dict[str, Any]:
         """Scale a model deployment. Returns the created job."""
         payload = {
             "name": name,
@@ -60,4 +71,5 @@ class ModelsResource(Resource):
         }
         if gateway_id is not None:
             body["gateway_id"] = gateway_id
-        return await self._post("jobs", json=body)
+        data = await self._post("jobs", json=body)
+        return parse(Job, data)

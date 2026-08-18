@@ -6,6 +6,8 @@ from typing import Any
 
 from vibops.resources import Resource
 
+__all__ = ["SecurityResource"]
+
 
 class SecurityResource(Resource):
     """Security scanning and findings."""

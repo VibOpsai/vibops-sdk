@@ -2,6 +2,19 @@
 
 from __future__ import annotations
 
+__all__ = [
+    "VibOpsError",
+    "AuthenticationError",
+    "ForbiddenError",
+    "NotFoundError",
+    "ConflictError",
+    "ValidationError",
+    "RateLimitError",
+    "ServerError",
+    "ConnectionError",
+    "TimeoutError",
+]
+
 
 class VibOpsError(Exception):
     """Base exception for all VibOps SDK errors."""
@@ -22,6 +35,10 @@ class ForbiddenError(VibOpsError):
 
 class NotFoundError(VibOpsError):
     """Raised on 404 Not Found."""
+
+
+class ConflictError(VibOpsError):
+    """Raised on 409 Conflict."""
 
 
 class ValidationError(VibOpsError):
