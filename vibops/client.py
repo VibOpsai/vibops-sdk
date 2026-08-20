@@ -165,8 +165,6 @@ class VibOps:
             retry_statuses=retry_statuses,
             event_hooks=event_hooks,
         )
-        self._loop: asyncio.AbstractEventLoop | None = None
-
         run = self._run_sync
         self.clusters = _SyncProxy(self._async.clusters, run)
         self.jobs = _SyncProxy(self._async.jobs, run)

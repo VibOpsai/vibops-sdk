@@ -22,7 +22,7 @@ class EvalResource(Resource):
 
     async def evaluate(self, job_id: str, rubric_id: str) -> dict[str, Any]:
         """Evaluate a job against a rubric."""
-        return await self._post("eval/evaluate", json={"job_id": job_id, "rubric_id": rubric_id})
+        return await self._post(f"eval/jobs/{job_id}/evaluate", json={"rubric_id": rubric_id})
 
     async def results(self, job_id: str) -> list[dict[str, Any]]:
         """Get evaluation results for a job."""
