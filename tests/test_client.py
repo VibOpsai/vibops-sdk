@@ -164,7 +164,7 @@ async def client():
 
         # --- pipelines ---
         if path == "/api/v1/pipelines" and method == "GET":
-            return _json_response([{"id": "pipe-1", "name": "deploy-ml"}])
+            return _json_response({"items": [{"id": "pipe-1", "name": "deploy-ml"}], "total": 1})
         if path == "/api/v1/pipelines" and method == "POST":
             return _json_response({"id": "pipe-2", "name": "retrain"}, 201)
         if path == "/api/v1/pipelines/pipe-1/trigger" and method == "POST":
@@ -172,7 +172,7 @@ async def client():
 
         # --- tokens ---
         if path == "/api/v1/tokens" and method == "GET":
-            return _json_response([{"id": "tok-1", "name": "ci-token"}])
+            return _json_response({"tokens": [{"id": "tok-1", "name": "ci-token"}]})
         if path == "/api/v1/tokens" and method == "POST":
             return _json_response({"id": "tok-2", "name": "new-token", "token": "vib_xxx"}, 201)
         if path == "/api/v1/tokens/tok-1" and method == "DELETE":
@@ -180,7 +180,7 @@ async def client():
 
         # --- notifications ---
         if path == "/api/v1/notifications/channels" and method == "GET":
-            return _json_response([{"id": "ch-1", "name": "slack-ops", "type": "slack"}])
+            return _json_response({"items": [{"id": "ch-1", "name": "slack-ops", "type": "slack"}]})
         if path == "/api/v1/notifications/channels" and method == "POST":
             return _json_response({"id": "ch-2", "name": "pagerduty"}, 201)
         if path == "/api/v1/notifications/channels/ch-1" and method == "DELETE":
@@ -194,13 +194,13 @@ async def client():
         if path == "/api/v1/policy" and method == "PUT":
             return _json_response({"version": 4})
         if path == "/api/v1/policy/agent-model-rules" and method == "GET":
-            return _json_response([{"id": "mr-1", "agent_id_pattern": "agent-*"}])
+            return _json_response({"rules": [{"id": "mr-1", "agent_id_pattern": "agent-*"}]})
         if path == "/api/v1/policy/agent-model-rules" and method == "POST":
             return _json_response({"id": "mr-2", "agent_id_pattern": "bot-*"}, 201)
 
         # --- identities ---
         if path == "/api/v1/agent-identities" and method == "GET":
-            return _json_response([{"id": "id-1", "name": "worker-1"}])
+            return _json_response({"items": [{"id": "id-1", "name": "worker-1"}], "total": 1})
         if path == "/api/v1/agent-identities" and method == "POST":
             return _json_response({"id": "id-2", "name": "worker-2", "key": "secret"}, 201)
         if path == "/api/v1/agent-identities/id-1/rotate" and method == "POST":
@@ -238,7 +238,7 @@ async def client():
 
         # --- triggers ---
         if path == "/api/v1/triggers" and method == "GET":
-            return _json_response([{"id": "trig-1", "name": "auto-scale"}])
+            return _json_response({"items": [{"id": "trig-1", "name": "auto-scale"}]})
         if path == "/api/v1/triggers" and method == "POST":
             return _json_response({"id": "trig-2", "name": "auto-restart"}, 201)
         if path == "/api/v1/triggers/trig-1/enable" and method == "POST":
@@ -260,7 +260,7 @@ async def client():
 
         # --- workloads ---
         if path == "/api/v1/workloads" and method == "GET":
-            return _json_response([{"id": "wl-1", "name": "llama-inference"}])
+            return _json_response({"org_id": "org-1", "total": 1, "rate_available": True, "workloads": [{"id": "wl-1", "name": "llama-inference"}]})
         if path == "/api/v1/workloads/wl-1" and method == "GET":
             return _json_response({"id": "wl-1", "name": "llama-inference", "status": "running"})
         if path == "/api/v1/workloads/cost-summary" and method == "GET":
@@ -268,7 +268,7 @@ async def client():
 
         # --- webhooks ---
         if path == "/api/v1/webhooks/subscriptions" and method == "GET":
-            return _json_response([{"id": "sub-1", "repo": "org/model"}])
+            return _json_response({"items": [{"id": "sub-1", "repo": "org/model"}]})
         if path == "/api/v1/webhooks/subscriptions" and method == "POST":
             return _json_response({"id": "sub-2", "repo": "org/new-model"}, 201)
         if path == "/api/v1/webhooks/subscriptions/sub-1" and method == "DELETE":
@@ -276,7 +276,7 @@ async def client():
 
         # --- gpu health ---
         if path == "/api/v1/gpu/health-predictions" and method == "GET":
-            return _json_response([{"gpu_id": "0", "failure_probability": 0.02}])
+            return _json_response({"org_id": "org-1", "cluster": None, "warnings": [{"gpu_id": "0", "failure_probability": 0.02}], "warning_count": 1})
 
         # --- reselling ---
         if path == "/api/v1/resellers/me" and method == "GET":
@@ -970,7 +970,7 @@ class TestWorkloads:
 
     @pytest.mark.asyncio
     async def test_cost_summary(self, client):
-        result = await client.workloads.cost_summary()
+        result = await client.workloads.cost_summary(cluster_name="gpu-prod")
         assert result["total_cost_usd"] == 5000
 
 

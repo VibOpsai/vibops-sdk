@@ -14,7 +14,8 @@ class IdentitiesResource(Resource):
 
     async def list(self) -> list[dict[str, Any]]:
         """List all agent identities."""
-        return await self._get("agent-identities")
+        data = await self._get("agent-identities")
+        return data.get("items", []) if isinstance(data, dict) else data
 
     async def create(
         self, name: str, *, expires_at: str | None = None,

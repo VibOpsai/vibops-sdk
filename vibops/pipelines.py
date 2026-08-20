@@ -14,7 +14,10 @@ class PipelinesResource(Resource):
 
     async def list(self, *, limit: int = 20) -> list[dict[str, Any]]:
         """List pipelines."""
-        return await self._get("pipelines", limit=limit)
+        data = await self._get("pipelines", limit=limit)
+        if isinstance(data, dict):
+            return data.get("items", [])
+        return data
 
     async def create(self, name: str, steps: list[dict[str, Any]]) -> dict[str, Any]:
         """Create a new pipeline."""

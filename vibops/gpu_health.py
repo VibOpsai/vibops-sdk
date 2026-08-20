@@ -14,4 +14,7 @@ class GpuHealthResource(Resource):
 
     async def predictions(self, *, cluster: str | None = None) -> list[dict[str, Any]]:
         """Get GPU health predictions."""
-        return await self._get("gpu/health-predictions", cluster=cluster)
+        data = await self._get("gpu/health-predictions", cluster=cluster)
+        if isinstance(data, dict):
+            return data.get("warnings", [])
+        return data
