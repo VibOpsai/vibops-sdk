@@ -15,11 +15,17 @@ class AlertsResource(Resource):
     async def list(
         self,
         *,
+        cluster: str | None = None,
         severity: str | None = None,
-        resolved: bool | None = None,
+        limit: int | None = None,
     ) -> list[dict[str, Any]]:
         """List alert history with optional filters."""
-        return await self._get("alert-history", severity=severity, resolved=resolved)
+        return await self._get(
+            "alert-history",
+            cluster=cluster,
+            severity=severity,
+            limit=limit,
+        )
 
     async def rules(self) -> list[dict[str, Any]]:
         """List all alert rules."""
@@ -27,20 +33,21 @@ class AlertsResource(Resource):
 
     async def create_rule(
         self,
-        name: str,
-        condition: str,
-        action: str,
+        cluster_name: str = "*",
         *,
-        severity: str | None = None,
-        cooldown_minutes: int | None = None,
+        warn_pct: int = 80,
+        crit_pct: int = 95,
+        cooldown_secs: int = 300,
+        enabled: bool = True,
     ) -> dict[str, Any]:
         """Create a new alert rule."""
-        body: dict[str, Any] = {"name": name, "condition": condition, "action": action}
-        if severity is not None:
-            body["severity"] = severity
-        if cooldown_minutes is not None:
-            body["cooldown_minutes"] = cooldown_minutes
-        return await self._post("alert-rules", json=body)
+        return await self._post("alert-rules", json={
+            "cluster_name": cluster_name,
+            "warn_pct": warn_pct,
+            "crit_pct": crit_pct,
+            "cooldown_secs": cooldown_secs,
+            "enabled": enabled,
+        })
 
     async def delete_rule(self, rule_id: str) -> dict[str, Any]:
         """Delete an alert rule."""

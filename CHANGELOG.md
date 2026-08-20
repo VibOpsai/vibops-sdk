@@ -4,7 +4,7 @@
 
 ### Added
 - Initial release
-- 9 resource namespaces: clusters, jobs, models, gateways, finops, agents, security, compliance, insights
+- 27 resource namespaces: clusters, jobs, models, gateways, finops, agents, security, compliance, insights, auth, audit, anomalies, alerts, secrets, pipelines, tokens, notifications, policy, identities, orgs, metrics, triggers, eval, workloads, webhooks, gpu_health, reselling
 - Async-first with sync wrapper
 - Auto-retry with exponential backoff (429 with Retry-After, 502, 503)
 - Typed exceptions (including ConflictError for 409)

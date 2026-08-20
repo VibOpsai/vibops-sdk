@@ -45,8 +45,8 @@ class Budget:
     """FinOps budget summary."""
 
     monthly_limit_usd: float = 0.0
-    spent_usd: float = 0.0
-    utilization_pct: float = 0.0
+    current_spend_usd: float = 0.0
+    spend_pct: float = 0.0
 
 
 @dataclass
