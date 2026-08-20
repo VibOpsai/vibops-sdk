@@ -15,16 +15,19 @@ class WorkloadsResource(Resource):
     async def list(
         self,
         *,
-        cluster: str | None = None,
+        cluster_name: str | None = None,
         status: str | None = None,
     ) -> list[dict[str, Any]]:
         """List workloads with optional filters."""
-        return await self._get("workloads", cluster=cluster, status=status)
+        data = await self._get("workloads", cluster_name=cluster_name, status=status)
+        if isinstance(data, dict):
+            return data.get("workloads", [])
+        return data
 
     async def get(self, workload_id: str) -> dict[str, Any]:
         """Get a single workload by ID."""
         return await self._get(f"workloads/{workload_id}")
 
-    async def cost_summary(self, *, cluster: str | None = None) -> dict[str, Any]:
-        """Get workload cost summary."""
-        return await self._get("workloads/cost-summary", cluster=cluster)
+    async def cost_summary(self, *, cluster_name: str) -> dict[str, Any]:
+        """Get workload cost summary for a cluster."""
+        return await self._get("workloads/cost-summary", cluster_name=cluster_name)

@@ -14,7 +14,8 @@ class NotificationsResource(Resource):
 
     async def channels(self) -> list[dict[str, Any]]:
         """List all notification channels."""
-        return await self._get("notifications/channels")
+        data = await self._get("notifications/channels")
+        return data.get("items", []) if isinstance(data, dict) else data
 
     async def create_channel(
         self,

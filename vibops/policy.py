@@ -18,11 +18,12 @@ class PolicyResource(Resource):
 
     async def update(self, policy_yaml: str) -> dict[str, Any]:
         """Update the policy document."""
-        return await self._put("policy", json={"policy": policy_yaml})
+        return await self._put("policy", json={"yaml_text": policy_yaml})
 
     async def model_rules(self) -> list[dict[str, Any]]:
         """List agent model rules."""
-        return await self._get("policy/agent-model-rules")
+        data = await self._get("policy/agent-model-rules")
+        return data.get("rules", []) if isinstance(data, dict) else data
 
     async def create_model_rule(
         self,

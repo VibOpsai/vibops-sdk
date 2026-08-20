@@ -14,7 +14,8 @@ class WebhooksResource(Resource):
 
     async def subscriptions(self) -> list[dict[str, Any]]:
         """List all webhook subscriptions."""
-        return await self._get("webhooks/subscriptions")
+        data = await self._get("webhooks/subscriptions")
+        return data.get("items", []) if isinstance(data, dict) else data
 
     async def create_subscription(
         self,

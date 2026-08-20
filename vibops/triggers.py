@@ -14,7 +14,8 @@ class TriggersResource(Resource):
 
     async def list(self) -> list[dict[str, Any]]:
         """List all triggers."""
-        return await self._get("triggers")
+        data = await self._get("triggers")
+        return data.get("items", []) if isinstance(data, dict) else data
 
     async def create(
         self,

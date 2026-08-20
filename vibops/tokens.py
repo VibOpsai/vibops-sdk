@@ -14,7 +14,8 @@ class TokensResource(Resource):
 
     async def list(self) -> list[dict[str, Any]]:
         """List all API tokens."""
-        return await self._get("tokens")
+        data = await self._get("tokens")
+        return data.get("tokens", []) if isinstance(data, dict) else data
 
     async def create(
         self, name: str, *, expires_at: str | None = None,
