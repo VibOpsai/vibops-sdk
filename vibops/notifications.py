@@ -29,9 +29,14 @@ class NotificationsResource(Resource):
             json={"name": name, "channel_type": channel_type, "url": url},
         )
 
-    async def delete_channel(self, channel_id: str) -> dict[str, Any]:
-        """Delete a notification channel."""
-        return await self._delete(f"notifications/channels/{channel_id}")
+    async def delete_channel(
+        self, channel_id: str, *, confirmed: bool = False,
+    ) -> dict[str, Any]:
+        """Delete a channel. confirmed=True to execute, else dry-run."""
+        return await self._delete(
+            f"notifications/channels/{channel_id}",
+            confirmed=confirmed,
+        )
 
     async def test_channel(self, channel_id: str) -> dict[str, Any]:
         """Send a test notification to a channel."""

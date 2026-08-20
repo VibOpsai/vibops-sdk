@@ -66,6 +66,10 @@ class TriggersResource(Resource):
         """Disable a trigger."""
         return await self._post(f"triggers/{trigger_id}/disable")
 
-    async def delete(self, trigger_id: str) -> dict[str, Any]:
-        """Delete a trigger."""
-        return await self._delete(f"triggers/{trigger_id}")
+    async def delete(
+        self, trigger_id: str, *, confirmed: bool = False,
+    ) -> dict[str, Any]:
+        """Delete a trigger. confirmed=True to execute, else dry-run."""
+        return await self._delete(
+            f"triggers/{trigger_id}", confirmed=confirmed,
+        )

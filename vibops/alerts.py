@@ -49,6 +49,10 @@ class AlertsResource(Resource):
             "enabled": enabled,
         })
 
-    async def delete_rule(self, rule_id: str) -> dict[str, Any]:
-        """Delete an alert rule."""
-        return await self._delete(f"alert-rules/{rule_id}")
+    async def delete_rule(
+        self, rule_id: str, *, confirmed: bool = False,
+    ) -> dict[str, Any]:
+        """Delete an alert rule. confirmed=True to execute, else dry-run."""
+        return await self._delete(
+            f"alert-rules/{rule_id}", confirmed=confirmed,
+        )

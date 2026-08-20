@@ -26,6 +26,10 @@ class TokensResource(Resource):
             body["expires_at"] = expires_at
         return await self._post("tokens", json=body)
 
-    async def delete(self, token_id: str) -> dict[str, Any]:
-        """Delete an API token."""
-        return await self._delete(f"tokens/{token_id}")
+    async def delete(
+        self, token_id: str, *, confirmed: bool = False,
+    ) -> dict[str, Any]:
+        """Delete an API token. confirmed=True to execute, else dry-run."""
+        return await self._delete(
+            f"tokens/{token_id}", confirmed=confirmed,
+        )
