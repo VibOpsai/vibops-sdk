@@ -16,7 +16,9 @@ class IdentitiesResource(Resource):
         """List all agent identities."""
         return await self._get("agent-identities")
 
-    async def create(self, name: str, *, expires_at: str | None = None) -> dict[str, Any]:
+    async def create(
+        self, name: str, *, expires_at: str | None = None,
+    ) -> dict[str, Any]:
         """Create a new agent identity. The key is returned only once."""
         body: dict[str, Any] = {"name": name}
         if expires_at is not None:

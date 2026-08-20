@@ -3,23 +3,26 @@
 from __future__ import annotations
 
 __all__ = [
-    "VibOpsError",
     "AuthenticationError",
+    "ConflictError",
+    "ConnectionError",
     "ForbiddenError",
     "NotFoundError",
-    "ConflictError",
-    "ValidationError",
     "RateLimitError",
     "ServerError",
-    "ConnectionError",
     "TimeoutError",
+    "ValidationError",
+    "VibOpsError",
 ]
 
 
 class VibOpsError(Exception):
     """Base exception for all VibOps SDK errors."""
 
-    def __init__(self, message: str, status_code: int | None = None, body: dict | None = None):
+    def __init__(
+        self, message: str, status_code: int | None = None,
+        body: dict | None = None,
+    ):
         super().__init__(message)
         self.status_code = status_code
         self.body = body

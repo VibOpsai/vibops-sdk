@@ -2,7 +2,8 @@
 
 from __future__ import annotations
 
-from typing import Any, AsyncIterator
+from typing import Any
+from collections.abc import AsyncIterator
 
 from vibops.resources import Resource
 from vibops.types import Job, parse
@@ -63,7 +64,8 @@ class JobsResource(Resource):
 
     async def stream_logs(self, job_id: str) -> AsyncIterator[str]:
         """Stream job logs via SSE. Yields log lines."""
-        async with self._http.stream("GET", f"/api/v1/jobs/{job_id}/logs/stream") as response:
+        url = f"/api/v1/jobs/{job_id}/logs/stream"
+        async with self._http.stream("GET", url) as response:
             async for line in response.aiter_lines():
                 if line.startswith("data:"):
                     yield line[5:].strip()

@@ -130,7 +130,7 @@ async def client():
 
         # --- audit ---
         if path == "/api/v1/audit" and method == "GET":
-            return _json_response([{"id": "aud-1", "action": "login", "user": "admin"}])
+            return _json_response({"total": 1, "items": [{"id": "aud-1", "action": "login", "user": "admin"}]})
         if path == "/api/v1/audit/verify" and method == "GET":
             return _json_response({"valid": True, "entries_checked": 42})
         if path == "/api/v1/audit/export" and method == "GET":
@@ -671,8 +671,8 @@ class TestAudit:
     @pytest.mark.asyncio
     async def test_list(self, client):
         result = await client.audit.list()
-        assert isinstance(result, list)
-        assert result[0]["action"] == "login"
+        assert result["total"] == 1
+        assert result["items"][0]["action"] == "login"
 
     @pytest.mark.asyncio
     async def test_verify_chain(self, client):

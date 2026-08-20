@@ -22,7 +22,9 @@ class ResellingResource(Resource):
 
     async def create_customer(self, name: str, slug: str) -> dict[str, Any]:
         """Create a new customer under the current reseller."""
-        return await self._post("resellers/me/customers", json={"name": name, "slug": slug})
+        return await self._post(
+            "resellers/me/customers", json={"name": name, "slug": slug},
+        )
 
     async def pricing_rules(self) -> list[dict[str, Any]]:
         """List pricing rules for the current reseller."""

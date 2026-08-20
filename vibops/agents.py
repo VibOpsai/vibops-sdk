@@ -29,8 +29,10 @@ class AgentsResource(Resource):
             model=model,
         )
 
-    async def usage_detail(self, agent_id: str, *, period: str = "30d") -> dict[str, Any]:
-        """Get detailed usage for a single agent (daily breakdown + model distribution)."""
+    async def usage_detail(
+        self, agent_id: str, *, period: str = "30d",
+    ) -> dict[str, Any]:
+        """Get detailed usage for a single agent."""
         return await self._get(f"finops/agent-usage/{agent_id}", period=period)
 
     async def budget(self, agent_id: str) -> dict[str, Any]:

@@ -12,7 +12,9 @@ __all__ = ["MetricsResource"]
 class MetricsResource(Resource):
     """Cross-cluster metrics and analytics."""
 
-    async def gpu(self, cluster: str | None = None, *, hours: int = 24) -> dict[str, Any]:
+    async def gpu(
+        self, cluster: str | None = None, *, hours: int = 24,
+    ) -> dict[str, Any]:
         """Get GPU utilization metrics, optionally filtered by cluster."""
         return await self._get("metrics/gpu", cluster=cluster, hours=hours)
 
