@@ -31,6 +31,11 @@ class WebhooksResource(Resource):
             "action": action,
         })
 
-    async def delete_subscription(self, sub_id: str) -> dict[str, Any]:
-        """Delete a webhook subscription."""
-        return await self._delete(f"webhooks/subscriptions/{sub_id}")
+    async def delete_subscription(
+        self, sub_id: str, *, confirmed: bool = False,
+    ) -> dict[str, Any]:
+        """Delete a subscription. confirmed=True to execute, else dry-run."""
+        return await self._delete(
+            f"webhooks/subscriptions/{sub_id}",
+            confirmed=confirmed,
+        )

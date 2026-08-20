@@ -29,6 +29,8 @@ class SecretsResource(Resource):
             body["description"] = description
         return await self._post("secrets", json=body)
 
-    async def delete(self, name: str) -> dict[str, Any]:
-        """Delete a secret by name."""
-        return await self._delete(f"secrets/{name}")
+    async def delete(
+        self, name: str, *, confirmed: bool = False,
+    ) -> dict[str, Any]:
+        """Delete a secret. confirmed=True to execute, else dry-run."""
+        return await self._delete(f"secrets/{name}", confirmed=confirmed)

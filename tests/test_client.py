@@ -721,7 +721,7 @@ class TestAlerts:
 
     @pytest.mark.asyncio
     async def test_delete_rule(self, client):
-        result = await client.alerts.delete_rule("rule-1")
+        result = await client.alerts.delete_rule("rule-1", confirmed=True)
         assert result["deleted"] is True
 
 
@@ -738,7 +738,7 @@ class TestSecrets:
 
     @pytest.mark.asyncio
     async def test_delete(self, client):
-        result = await client.secrets.delete("DB_PASSWORD")
+        result = await client.secrets.delete("DB_PASSWORD", confirmed=True)
         assert result["deleted"] is True
 
 
@@ -772,7 +772,7 @@ class TestTokens:
 
     @pytest.mark.asyncio
     async def test_delete(self, client):
-        result = await client.tokens.delete("tok-1")
+        result = await client.tokens.delete("tok-1", confirmed=True)
         assert result["deleted"] is True
 
 
@@ -789,7 +789,7 @@ class TestNotifications:
 
     @pytest.mark.asyncio
     async def test_delete_channel(self, client):
-        result = await client.notifications.delete_channel("ch-1")
+        result = await client.notifications.delete_channel("ch-1", confirmed=True)
         assert result["deleted"] is True
 
     @pytest.mark.asyncio
@@ -931,7 +931,7 @@ class TestTriggers:
 
     @pytest.mark.asyncio
     async def test_delete(self, client):
-        result = await client.triggers.delete("trig-1")
+        result = await client.triggers.delete("trig-1", confirmed=True)
         assert result["deleted"] is True
 
 
@@ -987,7 +987,7 @@ class TestWebhooks:
 
     @pytest.mark.asyncio
     async def test_delete_subscription(self, client):
-        result = await client.webhooks.delete_subscription("sub-1")
+        result = await client.webhooks.delete_subscription("sub-1", confirmed=True)
         assert result["deleted"] is True
 
 

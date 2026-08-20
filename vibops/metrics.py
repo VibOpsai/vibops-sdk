@@ -30,6 +30,6 @@ class MetricsResource(Resource):
         """Get mean time to recovery statistics."""
         return await self._get("metrics/mttr", hours=hours)
 
-    async def job_metrics(self) -> dict[str, Any]:
+    async def job_metrics(self, *, hours: int = 24) -> dict[str, Any]:
         """Get aggregate job metrics (success rate, latency)."""
-        return await self._get("metrics/jobs")
+        return await self._get("metrics/jobs", hours=hours)
