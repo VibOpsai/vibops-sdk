@@ -38,6 +38,6 @@ class GatewaysResource(Resource):
             body["labels"] = labels
         return await self._post("gateways", json=body)
 
-    async def delete(self, gateway_id: str, *, confirmed: bool = True) -> dict[str, Any]:
-        """Delete (revoke) a gateway."""
+    async def delete(self, gateway_id: str, *, confirmed: bool = False) -> dict[str, Any]:
+        """Delete (revoke) a gateway. Set confirmed=True to execute, otherwise returns dry-run preview."""
         return await self._delete(f"gateways/{gateway_id}", confirmed=confirmed)

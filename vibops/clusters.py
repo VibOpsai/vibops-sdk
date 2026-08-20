@@ -13,12 +13,11 @@ __all__ = ["ClustersResource"]
 class ClustersResource(Resource):
     """Operations on GPU clusters."""
 
-    async def list(self) -> list[Cluster | dict[str, Any]]:
+    async def list(self) -> list[Cluster]:
         """List all clusters registered in VibOps."""
         data = await self._get("clusters")
-        if isinstance(data, list):
-            return [parse(Cluster, item) for item in data]
-        return data
+        items = data.get("clusters", []) if isinstance(data, dict) else data
+        return [parse(Cluster, item) for item in items]
 
     async def deployments(
         self,
