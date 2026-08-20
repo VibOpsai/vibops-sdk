@@ -145,7 +145,7 @@ async def client():
             return _json_response({"id": "anom-1", "status": "resolved"})
 
         # --- alerts ---
-        if path == "/api/v1/alerts" and method == "GET":
+        if path == "/api/v1/alert-history" and method == "GET":
             return _json_response([{"id": "alert-1", "severity": "critical"}])
         if path == "/api/v1/alert-rules" and method == "GET":
             return _json_response([{"id": "rule-1", "name": "gpu-idle"}])
@@ -225,13 +225,13 @@ async def client():
             return _json_response({"email": "new@acme.com", "status": "invited"}, 201)
 
         # --- metrics ---
-        if path == "/api/v1/gpu-metrics" and method == "GET":
-            return _json_response([{"gpu_id": "0", "utilization": 0.85}])
-        if path == "/api/v1/cost-estimate" and method == "GET":
+        if path == "/api/v1/metrics/gpu" and method == "GET":
+            return _json_response({"hours": 24, "points": [{"gpu_id": "0", "utilization": 0.85}]})
+        if path == "/api/v1/metrics/cost" and method == "GET":
             return _json_response({"estimated_cost_usd": 1234.56})
-        if path == "/api/v1/workload-breakdown" and method == "GET":
+        if path == "/api/v1/metrics/workloads" and method == "GET":
             return _json_response({"training": 60, "inference": 40})
-        if path == "/api/v1/mttr" and method == "GET":
+        if path == "/api/v1/metrics/mttr" and method == "GET":
             return _json_response({"mttr_seconds": 120})
         if path == "/api/v1/metrics/jobs" and method == "GET":
             return _json_response({"success_rate": 0.95, "avg_duration_s": 45})
@@ -241,7 +241,9 @@ async def client():
             return _json_response([{"id": "trig-1", "name": "auto-scale"}])
         if path == "/api/v1/triggers" and method == "POST":
             return _json_response({"id": "trig-2", "name": "auto-restart"}, 201)
-        if path == "/api/v1/triggers/trig-1" and method == "PATCH":
+        if path == "/api/v1/triggers/trig-1/enable" and method == "POST":
+            return _json_response({"id": "trig-1", "enabled": True})
+        if path == "/api/v1/triggers/trig-1/disable" and method == "POST":
             return _json_response({"id": "trig-1", "enabled": False})
         if path == "/api/v1/triggers/trig-1" and method == "DELETE":
             return _json_response({"deleted": True})
@@ -251,7 +253,7 @@ async def client():
             return _json_response([{"id": "rub-1", "name": "quality-v1"}])
         if path == "/api/v1/eval/rubrics" and method == "POST":
             return _json_response({"id": "rub-2", "name": "quality-v2"}, 201)
-        if path == "/api/v1/eval/evaluate" and method == "POST":
+        if path == "/api/v1/eval/jobs/job-1/evaluate" and method == "POST":
             return _json_response({"score": 0.87, "rubric_id": "rub-1"})
         if path == "/api/v1/eval/jobs/job-1/evaluations" and method == "GET":
             return _json_response([{"score": 0.87}])
@@ -881,7 +883,7 @@ class TestMetrics:
     @pytest.mark.asyncio
     async def test_gpu(self, client):
         result = await client.metrics.gpu("gpu-prod")
-        assert result[0]["utilization"] == 0.85
+        assert result["points"][0]["utilization"] == 0.85
 
     @pytest.mark.asyncio
     async def test_cost_estimate(self, client):
@@ -916,8 +918,13 @@ class TestTriggers:
         assert result["name"] == "auto-restart"
 
     @pytest.mark.asyncio
-    async def test_toggle(self, client):
-        result = await client.triggers.toggle("trig-1", False)
+    async def test_enable(self, client):
+        result = await client.triggers.enable("trig-1")
+        assert result["enabled"] is True
+
+    @pytest.mark.asyncio
+    async def test_disable(self, client):
+        result = await client.triggers.disable("trig-1")
         assert result["enabled"] is False
 
     @pytest.mark.asyncio

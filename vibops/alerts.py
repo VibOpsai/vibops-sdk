@@ -18,8 +18,8 @@ class AlertsResource(Resource):
         severity: str | None = None,
         resolved: bool | None = None,
     ) -> list[dict[str, Any]]:
-        """List alerts with optional filters."""
-        return await self._get("alerts", severity=severity, resolved=resolved)
+        """List alert history with optional filters."""
+        return await self._get("alert-history", severity=severity, resolved=resolved)
 
     async def rules(self) -> list[dict[str, Any]]:
         """List all alert rules."""

@@ -32,9 +32,13 @@ class TriggersResource(Resource):
             "cooldown_minutes": cooldown_minutes,
         })
 
-    async def toggle(self, trigger_id: str, enabled: bool) -> dict[str, Any]:
-        """Enable or disable a trigger."""
-        return await self._patch(f"triggers/{trigger_id}", json={"enabled": enabled})
+    async def enable(self, trigger_id: str) -> dict[str, Any]:
+        """Enable a trigger."""
+        return await self._post(f"triggers/{trigger_id}/enable")
+
+    async def disable(self, trigger_id: str) -> dict[str, Any]:
+        """Disable a trigger."""
+        return await self._post(f"triggers/{trigger_id}/disable")
 
     async def delete(self, trigger_id: str) -> dict[str, Any]:
         """Delete a trigger."""
