@@ -94,7 +94,7 @@ async def client():
 
         # --- finops ---
         if path == "/api/v1/finops/budget" and method == "GET":
-            return _json_response({"monthly_limit_usd": 5000, "spent_usd": 1234, "utilization_pct": 24.68})
+            return _json_response({"monthly_limit_usd": 5000, "current_spend_usd": 1234, "spend_pct": 24.68})
         if path == "/api/v1/finops/spend/trend" and method == "GET":
             return _json_response([{"month": "2026-07", "total_usd": 4200}])
         if path == "/api/v1/finops/chargeback" and method == "GET":
@@ -150,7 +150,7 @@ async def client():
         if path == "/api/v1/alert-rules" and method == "GET":
             return _json_response([{"id": "rule-1", "name": "gpu-idle"}])
         if path == "/api/v1/alert-rules" and method == "POST":
-            return _json_response({"id": "rule-2", "name": "gpu-temp"}, 201)
+            return _json_response({"id": "rule-2", "cluster_name": "gpu-prod", "warn_pct": 80, "crit_pct": 95}, 201)
         if path == "/api/v1/alert-rules/rule-1" and method == "DELETE":
             return _json_response({"deleted": True})
 
@@ -716,8 +716,8 @@ class TestAlerts:
 
     @pytest.mark.asyncio
     async def test_create_rule(self, client):
-        result = await client.alerts.create_rule("gpu-temp", "temp > 90", "notify")
-        assert result["name"] == "gpu-temp"
+        result = await client.alerts.create_rule("gpu-prod", warn_pct=80, crit_pct=95)
+        assert result["cluster_name"] == "gpu-prod"
 
     @pytest.mark.asyncio
     async def test_delete_rule(self, client):
@@ -1326,7 +1326,7 @@ class TestTypes:
         assert result.payload == {"x": 1}
 
     def test_parse_budget(self):
-        data = {"monthly_limit_usd": 5000, "spent_usd": 1234, "utilization_pct": 24.68}
+        data = {"monthly_limit_usd": 5000, "current_spend_usd": 1234, "spend_pct": 24.68}
         result = parse(Budget, data)
         assert isinstance(result, Budget)
         assert result.monthly_limit_usd == 5000
