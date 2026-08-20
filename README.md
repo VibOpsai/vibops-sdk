@@ -70,7 +70,7 @@ except AuthenticationError:
     print("Check your token")
 ```
 
-Auto-retry is built in for 502/503 responses (1 retry).
+Auto-retry is built in for 429/502/503 responses (2 retries with exponential backoff).
 
 ## License
 

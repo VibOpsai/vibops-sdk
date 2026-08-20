@@ -16,10 +16,20 @@ class AnomaliesResource(Resource):
         self,
         *,
         cluster: str | None = None,
-        status: str | None = None,
+        anomaly_type: str | None = None,
+        severity: str | None = None,
+        open_only: bool | None = None,
+        limit: int | None = None,
     ) -> list[dict[str, Any]]:
         """List anomalies with optional filters."""
-        return await self._get("anomalies", cluster=cluster, status=status)
+        return await self._get(
+            "anomalies",
+            cluster=cluster,
+            anomaly_type=anomaly_type,
+            severity=severity,
+            open_only=open_only,
+            limit=limit,
+        )
 
     async def open(self) -> list[dict[str, Any]]:
         """List currently open (unresolved) anomalies."""

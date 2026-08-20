@@ -48,7 +48,7 @@ async def client():
 
         # --- clusters ---
         if path == "/api/v1/clusters" and method == "GET":
-            return _json_response([{"name": "gpu-prod", "gpu_total": 8, "gpu_used": 4, "online": True}])
+            return _json_response({"clusters": [{"name": "gpu-prod", "gpu_total": 8, "gpu_used": 4, "online": True}], "total": 1})
         if path == "/api/v1/clusters/gpu-prod/deployments" and method == "GET":
             return _json_response([{"name": "api-server", "replicas": 3}])
         if path == "/api/v1/clusters/gpu-prod/gpu-metrics/top" and method == "GET":
@@ -72,7 +72,7 @@ async def client():
             body = json.loads(request.content)
             return _json_response({"id": "gw-new", "name": body["name"], "api_key": "secret"}, 201)
         if path == "/api/v1/gateways/gw-1" and method == "DELETE":
-            return httpx.Response(204)
+            return _json_response({"deleted": True, "gateway_id": "gw-1", "jobs_cancelled": 0})
 
         # --- insights ---
         if path == "/api/v1/insights" and method == "GET":
@@ -126,7 +126,7 @@ async def client():
         if path == "/api/v1/auth/forgot-password" and method == "POST":
             return _json_response({"status": "sent"})
         if path == "/api/v1/auth/reset-password" and method == "POST":
-            return _json_response({"status": "reset"})
+            return httpx.Response(204)
 
         # --- audit ---
         if path == "/api/v1/audit" and method == "GET":
@@ -532,8 +532,8 @@ class TestGateways:
 
     @pytest.mark.asyncio
     async def test_delete_gateway(self, client):
-        result = await client.gateways.delete("gw-1")
-        assert result is None  # 204
+        result = await client.gateways.delete("gw-1", confirmed=True)
+        assert result["deleted"] is True
 
 
 class TestInsights:
@@ -653,7 +653,7 @@ class TestAuth:
 
     @pytest.mark.asyncio
     async def test_refresh(self, client):
-        result = await client.auth.refresh()
+        result = await client.auth.refresh("refresh-tok-123")
         assert result["access_token"] == "tok-456"
 
     @pytest.mark.asyncio
@@ -664,7 +664,7 @@ class TestAuth:
     @pytest.mark.asyncio
     async def test_reset_password(self, client):
         result = await client.auth.reset_password("reset-tok", "new-pass")
-        assert result["status"] == "reset"
+        assert result is None
 
 
 class TestAudit:
