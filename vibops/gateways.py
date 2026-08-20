@@ -24,7 +24,6 @@ class GatewaysResource(Resource):
         description: str | None = None,
         gateway_type: str = "kubernetes",
         prometheus_url: str | None = None,
-        labels: dict[str, str] | None = None,
     ) -> dict[str, Any]:
         """Register a new gateway. Returns info including the API key (shown once)."""
         body: dict[str, Any] = {"name": name, "gateway_type": gateway_type}
@@ -34,8 +33,6 @@ class GatewaysResource(Resource):
             body["description"] = description
         if prometheus_url is not None:
             body["prometheus_url"] = prometheus_url
-        if labels is not None:
-            body["labels"] = labels
         return await self._post("gateways", json=body)
 
     async def delete(

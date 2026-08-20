@@ -68,7 +68,7 @@ asyncio.run(main())
 | `identities` | `list()`, `create()`, `rotate(id)`, `revoke(id)` |
 | `orgs` | `get(id)`, `update(id)`, `users(id)`, `create_user()`, `teams()`, `invite()` |
 | `metrics` | `gpu()`, `cost_estimate()`, `workload_breakdown()`, `mttr()`, `job_metrics()` |
-| `triggers` | `list()`, `create()`, `enable(id)`, `disable(id)`, `delete(id)` |
+| `triggers` | `list()`, `create(name, metric, condition, threshold, action)`, `enable(id)`, `disable(id)`, `delete(id)` |
 | `eval` | `rubrics()`, `create_rubric()`, `evaluate(job_id, rubric_id)`, `results(job_id)` |
 | `workloads` | `list()`, `get(id)`, `cost_summary()` |
 | `webhooks` | `subscriptions()`, `create_subscription()`, `delete_subscription(id)` |

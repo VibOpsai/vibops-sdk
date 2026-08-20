@@ -20,10 +20,12 @@ __all__ = [
 class Cluster:
     """A GPU cluster registered in VibOps."""
 
-    name: str
-    gpu_total: int = 0
-    gpu_used: int = 0
-    online: bool = True
+    cluster_name: str
+    gateway_id: str = ""
+    gateway_name: str = ""
+    status: str = "online"
+    gpu_total: int | None = 0
+    gpu_used: int | None = 0
 
 
 @dataclass
