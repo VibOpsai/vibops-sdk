@@ -25,7 +25,7 @@ class NotificationsResource(Resource):
         """Create a new notification channel."""
         return await self._post(
             "notifications/channels",
-            json={"name": name, "type": channel_type, "url": url},
+            json={"name": name, "channel_type": channel_type, "url": url},
         )
 
     async def delete_channel(self, channel_id: str) -> dict[str, Any]:

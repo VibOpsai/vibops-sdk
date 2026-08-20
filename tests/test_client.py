@@ -48,7 +48,7 @@ async def client():
 
         # --- clusters ---
         if path == "/api/v1/clusters" and method == "GET":
-            return _json_response({"clusters": [{"name": "gpu-prod", "gpu_total": 8, "gpu_used": 4, "online": True}], "total": 1})
+            return _json_response({"clusters": [{"cluster_name": "gpu-prod", "gateway_id": "gw-1", "gateway_name": "edge-01", "status": "online", "gpu_total": 8, "gpu_used": 4}], "total": 1})
         if path == "/api/v1/clusters/gpu-prod/deployments" and method == "GET":
             return _json_response([{"name": "api-server", "replicas": 3}])
         if path == "/api/v1/clusters/gpu-prod/gpu-metrics/top" and method == "GET":
@@ -461,7 +461,7 @@ class TestClusters:
         result = await client.clusters.list()
         assert isinstance(result, list)
         assert isinstance(result[0], Cluster)
-        assert result[0].name == "gpu-prod"
+        assert result[0].cluster_name == "gpu-prod"
 
     @pytest.mark.asyncio
     async def test_deployments(self, client):
@@ -699,7 +699,7 @@ class TestAnomalies:
 
     @pytest.mark.asyncio
     async def test_resolve(self, client):
-        result = await client.anomalies.resolve("anom-1", reason="fixed")
+        result = await client.anomalies.resolve("anom-1")
         assert result["status"] == "resolved"
 
 
@@ -914,7 +914,9 @@ class TestTriggers:
 
     @pytest.mark.asyncio
     async def test_create(self, client):
-        result = await client.triggers.create("auto-restart", "pod_crash > 3", "restart")
+        result = await client.triggers.create(
+            "auto-restart", "avg:system.cpu.user{*}", "gt", 80.0, "scale_cluster",
+        )
         assert result["name"] == "auto-restart"
 
     @pytest.mark.asyncio
@@ -1174,7 +1176,7 @@ class TestRetry:
             call_count += 1
             if call_count == 1:
                 return httpx.Response(502, json={"detail": "Bad Gateway"})
-            return httpx.Response(200, json=[{"name": "gpu-prod"}])
+            return httpx.Response(200, json={"clusters": [{"cluster_name": "gpu-prod", "gpu_total": 8, "gpu_used": 4}]})
 
         c = AsyncVibOps(url="https://vibops.test", token="tok")
         c._http = httpx.AsyncClient(
@@ -1186,7 +1188,7 @@ class TestRetry:
 
         result = await c.clusters.list()
         assert call_count == 2
-        assert (result[0].name if hasattr(result[0], 'name') else result[0]["name"]) == "gpu-prod"
+        assert (result[0].cluster_name if hasattr(result[0], 'cluster_name') else result[0]["cluster_name"]) == "gpu-prod"
         await c.close()
 
     @pytest.mark.asyncio
@@ -1198,7 +1200,7 @@ class TestRetry:
             call_count += 1
             if call_count == 1:
                 return httpx.Response(429, json={"detail": "Too Many Requests"})
-            return httpx.Response(200, json=[{"name": "gpu-prod"}])
+            return httpx.Response(200, json={"clusters": [{"cluster_name": "gpu-prod", "gpu_total": 8, "gpu_used": 4}]})
 
         c = AsyncVibOps(url="https://vibops.test", token="tok")
         c._http = httpx.AsyncClient(
@@ -1211,7 +1213,7 @@ class TestRetry:
         with patch("vibops.resources.asyncio.sleep", new_callable=AsyncMock):
             result = await c.clusters.list()
             assert call_count == 2
-            assert (result[0].name if hasattr(result[0], 'name') else result[0]["name"]) == "gpu-prod"
+            assert (result[0].cluster_name if hasattr(result[0], 'cluster_name') else result[0]["cluster_name"]) == "gpu-prod"
         await c.close()
 
     @pytest.mark.asyncio
@@ -1228,7 +1230,7 @@ class TestRetry:
                     json={"detail": "Too Many Requests"},
                     headers={"Retry-After": "3"},
                 )
-            return httpx.Response(200, json=[{"name": "gpu-prod"}])
+            return httpx.Response(200, json={"clusters": [{"cluster_name": "gpu-prod", "gpu_total": 8, "gpu_used": 4}]})
 
         c = AsyncVibOps(url="https://vibops.test", token="tok")
         c._http = httpx.AsyncClient(
@@ -1271,7 +1273,7 @@ class TestRetry:
             call_count += 1
             if call_count <= 2:
                 return httpx.Response(502, json={"detail": "Bad Gateway"})
-            return httpx.Response(200, json=[{"name": "gpu-prod"}])
+            return httpx.Response(200, json={"clusters": [{"cluster_name": "gpu-prod", "gpu_total": 8, "gpu_used": 4}]})
 
         c = AsyncVibOps(url="https://vibops.test", token="tok")
         c._http = httpx.AsyncClient(
@@ -1284,7 +1286,7 @@ class TestRetry:
         with patch("vibops.resources.asyncio.sleep", new_callable=AsyncMock) as mock_sleep:
             result = await c.clusters.list()
             assert call_count == 3
-            assert (result[0].name if hasattr(result[0], 'name') else result[0]["name"]) == "gpu-prod"
+            assert (result[0].cluster_name if hasattr(result[0], 'cluster_name') else result[0]["cluster_name"]) == "gpu-prod"
             # Should have slept twice: 0.5s then 1.0s
             assert mock_sleep.call_count == 2
             mock_sleep.assert_any_call(0.5)
@@ -1312,10 +1314,10 @@ class TestPutHelper:
 
 class TestTypes:
     def test_parse_cluster(self):
-        data = {"name": "gpu-prod", "gpu_total": 8, "gpu_used": 4, "online": True}
+        data = {"cluster_name": "gpu-prod", "gateway_id": "gw-1", "gateway_name": "edge-01", "status": "online", "gpu_total": 8, "gpu_used": 4}
         result = parse(Cluster, data)
         assert isinstance(result, Cluster)
-        assert result.name == "gpu-prod"
+        assert result.cluster_name == "gpu-prod"
         assert result.gpu_total == 8
 
     def test_parse_job(self):
@@ -1340,13 +1342,13 @@ class TestTypes:
         assert result.recommendation is None
 
     def test_parse_with_extra_fields_ignores_them(self):
-        data = {"name": "gpu-prod", "gpu_total": 8, "extra_field": "ignored"}
+        data = {"cluster_name": "gpu-prod", "gpu_total": 8, "extra_field": "ignored"}
         result = parse(Cluster, data)
         assert isinstance(result, Cluster)
-        assert result.name == "gpu-prod"
+        assert result.cluster_name == "gpu-prod"
 
     def test_parse_with_missing_required_field_returns_dict(self):
-        """If the required 'name' field is missing, parse returns the raw dict."""
+        """If the required 'cluster_name' field is missing, parse returns the raw dict."""
         data = {"gpu_total": 8}
         result = parse(Cluster, data)
         assert isinstance(result, dict)
@@ -1414,7 +1416,7 @@ class TestStreaming:
 class TestSyncWrapper:
     def test_sync_wrapper_works(self):
         async def handler(request: httpx.Request) -> httpx.Response:
-            return httpx.Response(200, json=[{"name": "gpu-prod", "gpu_total": 8, "gpu_used": 4, "online": True}])
+            return httpx.Response(200, json={"clusters": [{"cluster_name": "gpu-prod", "gateway_id": "gw-1", "gateway_name": "edge-01", "status": "online", "gpu_total": 8, "gpu_used": 4}]})
 
         client = VibOps(url="https://vibops.test", token="tok")
         client._async._http = httpx.AsyncClient(
@@ -1428,5 +1430,5 @@ class TestSyncWrapper:
         client.clusters = _SyncProxy(client._async.clusters, client._run_sync)
 
         result = client.clusters.list()
-        assert result[0].name == "gpu-prod"
+        assert result[0].cluster_name == "gpu-prod"
         client.close()
