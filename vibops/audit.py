@@ -15,12 +15,25 @@ class AuditResource(Resource):
     async def list(
         self,
         *,
-        limit: int = 100,
+        limit: int = 50,
+        offset: int = 0,
         action: str | None = None,
-        user: str | None = None,
-    ) -> list[dict[str, Any]]:
-        """List audit log entries."""
-        return await self._get("audit", limit=limit, action=action, user=user)
+        username: str | None = None,
+        source: str | None = None,
+        success: bool | None = None,
+        job_id: str | None = None,
+    ) -> dict[str, Any]:
+        """List audit log entries. Returns ``{total, items}``."""
+        return await self._get(
+            "audit",
+            limit=limit,
+            offset=offset,
+            action=action,
+            username=username,
+            source=source,
+            success=success,
+            job_id=job_id,
+        )
 
     async def verify_chain(self) -> dict[str, Any]:
         """Verify the integrity of the audit log hash chain."""

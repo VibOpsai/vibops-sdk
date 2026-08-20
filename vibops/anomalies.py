@@ -35,7 +35,9 @@ class AnomaliesResource(Resource):
         """List currently open (unresolved) anomalies."""
         return await self._get("anomalies/open")
 
-    async def resolve(self, anomaly_id: str, *, reason: str | None = None) -> dict[str, Any]:
+    async def resolve(
+        self, anomaly_id: str, *, reason: str | None = None,
+    ) -> dict[str, Any]:
         """Resolve an anomaly."""
         body: dict[str, Any] = {}
         if reason is not None:

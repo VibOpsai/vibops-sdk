@@ -20,6 +20,10 @@ class PipelinesResource(Resource):
         """Create a new pipeline."""
         return await self._post("pipelines", json={"name": name, "steps": steps})
 
-    async def trigger(self, pipeline_id: str, *, payload: dict[str, Any] | None = None) -> dict[str, Any]:
+    async def trigger(
+        self, pipeline_id: str, *, payload: dict[str, Any] | None = None,
+    ) -> dict[str, Any]:
         """Trigger a pipeline run."""
-        return await self._post(f"pipelines/{pipeline_id}/trigger", json=payload)
+        return await self._post(
+            f"pipelines/{pipeline_id}/trigger", json=payload,
+        )

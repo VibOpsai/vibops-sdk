@@ -3,7 +3,8 @@
 from __future__ import annotations
 
 import asyncio
-from typing import Any, AsyncIterator
+from typing import Any
+from collections.abc import AsyncIterator
 
 import httpx
 
@@ -37,7 +38,10 @@ def _raise_for_status(response: httpx.Response) -> None:
     except Exception:
         body = None
 
-    message = body.get("detail", response.reason_phrase) if isinstance(body, dict) else response.reason_phrase
+    if isinstance(body, dict):
+        message = body.get("detail", response.reason_phrase)
+    else:
+        message = response.reason_phrase
     status = response.status_code
 
     if status == 401:
@@ -69,7 +73,9 @@ class Resource:
     ) -> None:
         self._http = http
         self._max_retries = max_retries
-        self._retry_statuses = retry_statuses if retry_statuses is not None else _RETRY_STATUSES
+        self._retry_statuses = (
+            retry_statuses if retry_statuses is not None else _RETRY_STATUSES
+        )
 
     async def _request(
         self,
@@ -101,7 +107,8 @@ class Resource:
             except (httpx.TimeoutException, httpx.ReadTimeout):
                 raise TimeoutError("Request timed out") from None
 
-            if response.status_code not in self._retry_statuses or attempt == self._max_retries:
+            not_retryable = response.status_code not in self._retry_statuses
+            if not_retryable or attempt == self._max_retries:
                 last_response = response
                 break
 
@@ -142,7 +149,9 @@ class Resource:
     async def _patch(self, path: str, *, json: Any | None = None) -> Any:
         return await self._request("PATCH", path, json=json)
 
-    async def _paginate(self, path: str, limit: int = 100, **params: Any) -> AsyncIterator[dict[str, Any]]:
+    async def _paginate(
+        self, path: str, limit: int = 100, **params: Any,
+    ) -> AsyncIterator[dict[str, Any]]:
         """Auto-paginating async generator."""
         offset = 0
         while True:

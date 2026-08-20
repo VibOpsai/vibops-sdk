@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import asyncio
 import functools
+import warnings
 from typing import Any
 
 import httpx
@@ -61,6 +62,12 @@ class AsyncVibOps:
             raise VibOpsError("url is required")
         if not token:
             raise VibOpsError("token is required")
+        if url.startswith("http://"):
+            warnings.warn(
+                "Using unencrypted HTTP. Tokens will be sent in plaintext. "
+                "Use https:// in production.",
+                stacklevel=2,
+            )
 
         self._http = httpx.AsyncClient(
             base_url=url.rstrip("/"),

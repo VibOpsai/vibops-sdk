@@ -26,7 +26,7 @@ class GatewaysResource(Resource):
         prometheus_url: str | None = None,
         labels: dict[str, str] | None = None,
     ) -> dict[str, Any]:
-        """Register a new gateway. Returns gateway info including the API key (shown once)."""
+        """Register a new gateway. Returns info including the API key (shown once)."""
         body: dict[str, Any] = {"name": name, "gateway_type": gateway_type}
         if clusters is not None:
             body["clusters"] = clusters
@@ -38,6 +38,8 @@ class GatewaysResource(Resource):
             body["labels"] = labels
         return await self._post("gateways", json=body)
 
-    async def delete(self, gateway_id: str, *, confirmed: bool = False) -> dict[str, Any]:
-        """Delete (revoke) a gateway. Set confirmed=True to execute, otherwise returns dry-run preview."""
+    async def delete(
+        self, gateway_id: str, *, confirmed: bool = False,
+    ) -> dict[str, Any]:
+        """Delete a gateway. confirmed=True to execute, else dry-run."""
         return await self._delete(f"gateways/{gateway_id}", confirmed=confirmed)

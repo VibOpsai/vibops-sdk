@@ -24,7 +24,9 @@ class FinOpsResource(Resource):
         """Get monthly spend trend (last 12 months)."""
         return await self._get("finops/spend/trend")
 
-    async def chargeback(self, year: int | None = None, month: int | None = None) -> Any:
+    async def chargeback(
+        self, year: int | None = None, month: int | None = None,
+    ) -> Any:
         """Get chargeback reports. If year/month given, returns a single report."""
         if year is not None and month is not None:
             return await self._get(f"finops/chargeback/{year}/{month}")

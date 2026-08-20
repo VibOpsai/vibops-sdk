@@ -14,7 +14,10 @@ class AuthResource(Resource):
 
     async def login(self, username: str, password: str) -> dict[str, Any]:
         """Authenticate and obtain an access token."""
-        return await self._post("auth/login", json={"username": username, "password": password})
+        return await self._post(
+            "auth/login",
+            json={"username": username, "password": password},
+        )
 
     async def me(self) -> dict[str, Any]:
         """Get the current authenticated user profile."""
@@ -26,8 +29,14 @@ class AuthResource(Resource):
 
     async def forgot_password(self, username_or_email: str) -> dict[str, Any]:
         """Request a password reset email."""
-        return await self._post("auth/forgot-password", json={"username_or_email": username_or_email})
+        return await self._post(
+            "auth/forgot-password",
+            json={"username_or_email": username_or_email},
+        )
 
     async def reset_password(self, token: str, new_password: str) -> None:
         """Reset password using a reset token."""
-        await self._post("auth/reset-password", json={"token": token, "new_password": new_password})
+        await self._post(
+            "auth/reset-password",
+            json={"token": token, "new_password": new_password},
+        )

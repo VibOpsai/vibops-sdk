@@ -16,7 +16,9 @@ class TokensResource(Resource):
         """List all API tokens."""
         return await self._get("tokens")
 
-    async def create(self, name: str, *, expires_at: str | None = None) -> dict[str, Any]:
+    async def create(
+        self, name: str, *, expires_at: str | None = None,
+    ) -> dict[str, Any]:
         """Create a new API token."""
         body: dict[str, Any] = {"name": name}
         if expires_at is not None:
