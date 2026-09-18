@@ -87,4 +87,4 @@ __all__ = [
     "WebhooksResource",
     "WorkloadsResource",
 ]
-__version__ = "0.42.0"
+__version__ = "0.43.0"
