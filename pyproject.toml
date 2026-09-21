@@ -1,6 +1,6 @@
 [project]
 name = "vibops"
-version = "0.45.9"
+version = "0.45.10"
 description = "Python SDK for VibOps — The AI Infrastructure Engine"
 license = {text = "MIT"}
 requires-python = ">=3.10"
