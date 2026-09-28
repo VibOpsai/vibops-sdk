@@ -1241,7 +1241,7 @@ class TestRetry:
         c.clusters = ClustersResource(c._http)
 
         with patch("vibops.resources.asyncio.sleep", new_callable=AsyncMock) as mock_sleep:
-            result = await c.clusters.list()
+            await c.clusters.list()
             assert call_count == 2
             mock_sleep.assert_called_once_with(3.0)
         await c.close()
@@ -1372,8 +1372,6 @@ class TestStreaming:
     @pytest.mark.asyncio
     async def test_stream_logs_calls_correct_endpoint(self):
         """Verify stream_logs calls the correct SSE endpoint."""
-        streamed_url = None
-
         class FakeStreamResponse:
             async def aiter_lines(self):
                 yield "data: line1"
